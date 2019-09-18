@@ -28,19 +28,9 @@ namespace Sample
                 }
             });
 
-            /*
-            var provider = new ConsoleLoggerProvider((category, level) => level == LogLevel.Information, true);
-            var myConsoleLoggerFactory = new LoggerFactory(new[] { provider });
-            */
             var loggerFactory = LoggerFactory.Create(builder => {
-                //builder.AddFilter("Microsoft", LogLevel.Warning)
-                //       .AddFilter("System", LogLevel.Warning)
-                //       .AddFilter("SampleApp.Program", LogLevel.Debug)
                 builder.AddConsole();
             });
-
-            //var consoleProvider = new ConsoleLoggerProvider((str, lev) => true/*, includeScopes: false*/);
-            //using var consoleLogger = consoleProvider.CreateLogger("test");
 
             using var logger = new EventSourceLogger(loggerFactory.CreateLogger<Program>());
 
