@@ -19,6 +19,8 @@
     <PackageReleaseNotes>Initial release.</PackageReleaseNotes>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>key.pfx</AssemblyOriginatorKeyFile>
+    <Authors>Observito</Authors>
+    <Company>Observito</Company>
 
   </PropertyGroup>
 
