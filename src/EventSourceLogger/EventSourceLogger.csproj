@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFramework>netstandard2.1</TargetFramework>
 
     <AssemblyName>Observito.Trace.EventSourceLogger</AssemblyName>
     <Title>EventSourceLogger</Title>
@@ -9,7 +9,7 @@
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Description>Forward EventSource messages to an underlying logger. This could be e.g. the event log. This library eliminates the need to do both in-process event tracing (via EventSource) and logging. Instead use this library to forward a subset of events to the event log.</Description>
     <Copyright>Observito 2019</Copyright>
-    <Version>1.0.0</Version>
+    <Version>1.0.1</Version>
     <RootNamespace>Observito.Trace.EventSourceLogger</RootNamespace>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
@@ -26,6 +26,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="3.0.0-rc1.19456.10" />
+    <PackageReference Include="Observito.Trace.EventSourceFormatter" Version="1.0.1" />
   </ItemGroup>
 
   <ItemGroup>

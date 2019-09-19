@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Observito.Trace.EventSourceFormatter;
+using System;
 using System.Diagnostics.Tracing;
 
 namespace Observito.Trace.EventSourceLogger
@@ -39,6 +40,6 @@ namespace Observito.Trace.EventSourceLogger
         /// Useful for transforming certain payload values such as sensitive information to e.g. 
         /// null or encrypted ciphertext.
         /// </remarks>
-        public PayloadValueSelector PayloadSelector { get; set; }
+        public PayloadSelector<object> PayloadSelector { get; set; }
     }
 }

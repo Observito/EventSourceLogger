@@ -38,7 +38,7 @@ namespace Observito.Trace.EventSourceLogger
         {
             if (log is null) throw new ArgumentNullException(nameof(log));
 
-            var query = new EventSourceLogSettings(level);
+            var query = new EventSourceLogSettings(level) { IncludePayload = true };
             EnableEvents(log, query);
         }
 
@@ -75,7 +75,7 @@ namespace Observito.Trace.EventSourceLogger
                 var msg = "";
                 try
                 {
-                    msg = FormatEvent(@event, query);
+                    msg = EventSourceFormatter.EventSourceFormatter.Format(@event, query.IncludePayload, query.PayloadSelector);
                 }
                 catch (Exception ex)
                 {
@@ -83,46 +83,6 @@ namespace Observito.Trace.EventSourceLogger
                 }
                 _logger.Log(logLevel, msg);
             }
-        }
-
-        private static string FormatEvent(EventWrittenEventArgs @event, EventSourceLogSettings settings)
-        {
-            // Create log message builder
-            var sbLog = new StringBuilder();
-
-            // Append log header line
-            sbLog.AppendLine($"{@event.EventName}: {@event.Message}");
-            sbLog.AppendLine();
-
-            // Data dictionary
-            var map = new Dictionary<string, object>();
-            map["EventSourceName"] = @event.EventSource.Name;
-            map["EventSourceGuid"] = @event.EventSource.Guid;
-            map["Version"] = @event.Version;
-
-            // Add payload to data
-            if (settings.IncludePayload || true)
-            {
-                var index = 0;
-                foreach (var name in @event.PayloadNames)
-                {
-                    var payload = @event.Payload[index];
-                    if (settings.PayloadSelector != null)
-                        payload = settings.PayloadSelector(name, payload);
-                    map[$"@{name}"] = payload;
-                    index++;
-                }
-            }
-
-            foreach (var kv in map)
-            {
-                string val = kv.Value.ToString();
-
-                sbLog.AppendLine($"{kv.Key}={val}");
-            }
-
-            var fmt = sbLog.ToString();
-            return fmt;
         }
 
         private class Source : EventListener
