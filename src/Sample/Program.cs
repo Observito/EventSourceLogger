@@ -23,7 +23,7 @@ namespace Sample
                     if (c % 4 == 0)
                         EchoEventSource.Log.EchoMore($"Test call #{c}", DateTime.Today, c);
                     else
-                        EchoEventSource.Log.Echo($"Test call #{c}");
+                        EchoEventSource.Log.Echo($"Test call #{c}", "GDPR info *not* to be logged!");
                     c++;
                 }
             });

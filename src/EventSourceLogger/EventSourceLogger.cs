@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics.Tracing;
 using System.Text;
 using Microsoft.Extensions.Logging;
+using Observito.Trace.EventSourceFormatter;
 
 namespace Observito.Trace.EventSourceLogger
 {
@@ -20,13 +22,16 @@ namespace Observito.Trace.EventSourceLogger
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _source = new Source();
+            _queries = new Dictionary<string, EventSourceLogSettings>(StringComparer.OrdinalIgnoreCase);
+            _payloadMetadata = new ConcurrentDictionary<(EventSourceIdentifier, int, int), PayloadType>();
 
             _source.EventWrittenImpl += OnEventWritten;
         }
 
         private readonly ILogger _logger;
         private readonly Source _source;
-        private readonly Dictionary<string, EventSourceLogSettings> _queries = new Dictionary<string, EventSourceLogSettings>(StringComparer.OrdinalIgnoreCase);
+        private readonly Dictionary<string, EventSourceLogSettings> _queries;
+        private readonly ConcurrentDictionary<(EventSourceIdentifier, int, int), PayloadType> _payloadMetadata;
 
         /// <summary>
         /// Enable event logging for an event source.
@@ -53,6 +58,13 @@ namespace Observito.Trace.EventSourceLogger
             if (log is null) throw new ArgumentNullException(nameof(log));
             if (query is null) throw new ArgumentNullException(nameof(query));
 
+            var id = log.GetIdentfier();
+            foreach (var kv in log.GetPayloadMetadata())
+            {
+                if (kv.Item2 != null)
+                    _payloadMetadata[(id, kv.Item1.EventId, kv.Item1.Index)] = kv.Item2.Value;
+            }
+
             _queries[log.Name] = query;
             _source.EnableEvents(log, query.Level);
         }
@@ -75,7 +87,19 @@ namespace Observito.Trace.EventSourceLogger
                 var msg = "";
                 try
                 {
-                    msg = EventSourceFormatter.EventSourceFormatter.Format(@event, query.IncludePayload, query.PayloadSelector);
+                    object PayloadSelector(PayloadData payload)
+                    {
+                        if (_payloadMetadata.TryGetValue((@event.EventSource.GetIdentfier(), @event.EventId, payload.Index), out var payloadType))
+                        {
+                            if (payloadType == PayloadType.Sensitive)
+                                return "(Sensitive information omitted)";
+                        }
+                        return query.PayloadSelector == null
+                            ? payload.Value
+                            : query.PayloadSelector(payload);
+                    }
+
+                    msg = EventSourceFormatter.EventSourceFormatter.Format(@event, query.IncludePayload, PayloadSelector);
                 }
                 catch (Exception ex)
                 {

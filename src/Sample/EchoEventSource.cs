@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Observito.Trace.EventSourceFormatter;
+using System;
 using System.Diagnostics.Tracing;
 
 namespace Sample
@@ -20,7 +21,7 @@ namespace Sample
         }
 
         [Event(Events.Echo, Level = EventLevel.Warning, Task = Tasks.Echo, Opcode = EventOpcode.Info, Message = "Echo: {0}")]
-        public void Echo(string message) { WriteEvent(Events.Echo, message); }
+        public void Echo(string message, [Payload(PayloadType.Sensitive)]string gdpr) { WriteEvent(Events.Echo, message, gdpr); }
 
         [Event(Events.EchoMore, Level = EventLevel.Warning, Task = Tasks.Echo, Opcode = EventOpcode.Info, Message = "Echo: {0}")]
         public void EchoMore(string message, DateTime date, int count) { WriteEvent(Events.EchoMore, message, date, count); }
